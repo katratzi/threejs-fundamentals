@@ -14,28 +14,34 @@
 
     <script type="module">
         import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r123/three.module.js';
+
         function main() {
             const canvas = document.querySelector('#c');
             const renderer = new THREE.WebGLRenderer({ canvas });
 
-            const fov = 75;
+            // setup the camera
+            const fov = 60;
             const aspect = 2;  // the canvas default
             const near = 0.1;
             const far = 5;
             const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+            camera.position.z = 3;
 
-            camera.position.z = 2;
-
+            // and create a new scene
             const scene = new THREE.Scene();
-            const boxWidth = 1;
-            const boxHeight = 1;
-            const boxDepth = 1;
-            const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
+            const geometry = new THREE.BoxGeometry(1, 1, 1);
             const material = new THREE.MeshPhongMaterial({ color: 0x44aa88 });
 
             const cube = new THREE.Mesh(geometry, material);
-            scene.add(cube);
+
+            // set up the renderer
             renderer.render(scene, camera);
+
+            const cubes = [
+                makeInstance(geometry, 0x44aa88, 0),
+                makeInstance(geometry, 0x8844aa, -2),
+                makeInstance(geometry, 0xaa8844, 2),
+            ];
 
             {
                 const color = 0xFFFFFF;
@@ -45,14 +51,29 @@
                 scene.add(light);
             }
 
+            // create an instance of the cube
+            function makeInstance(geometry, color, x) {
+                const material = new THREE.MeshPhongMaterial({ color });
+                const cube = new THREE.Mesh(geometry, material);
+                scene.add(cube);
+
+                cube.position.x = x;
+
+                return cube;
+            }
+
+            // our render loop
             function render(time) {
                 time *= 0.001;  // convert time to seconds
 
-                cube.rotation.x = time;
-                cube.rotation.y = time;
+                // rotate our cubes a bit
+                for (let i = 0; i < cubes.length; i++) {
+                    cubes[i].rotation.x = time;
+                    cubes[i].rotation.y = time;
+                }
 
+                // draw and call loop again
                 renderer.render(scene, camera);
-
                 requestAnimationFrame(render);
             }
 
