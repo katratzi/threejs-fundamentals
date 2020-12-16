@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Document</title>
+    <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
@@ -23,7 +24,7 @@
             const fov = 60;
             const aspect = 2;  // the canvas default
             const near = 0.1;
-            const far = 5;
+            const far = 6;
             const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
             camera.position.z = 3;
 
@@ -66,6 +67,14 @@
             function render(time) {
                 time *= 0.001;  // convert time to seconds
 
+                // make the canvas the right size by fixing the aspect ratio
+                // only call this if we've detected a change
+                if (resizeRendererToDisplaySize(renderer)) {
+                    const canvas = renderer.domElement;
+                    camera.aspect = canvas.clientWidth / canvas.clientHeight;
+                    camera.updateProjectionMatrix();
+                }
+
                 // rotate our cubes a bit
                 for (let i = 0; i < cubes.length; i++) {
                     cubes[i].rotation.x = time;
@@ -75,6 +84,18 @@
                 // draw and call loop again
                 renderer.render(scene, camera);
                 requestAnimationFrame(render);
+            }
+
+            // helper for fixing the resolution of the canvas
+            function resizeRendererToDisplaySize(renderer) {
+                const canvas = renderer.domElement;
+                const width = canvas.clientWidth;
+                const height = canvas.clientHeight;
+                const needResize = canvas.width !== width || canvas.height !== height;
+                if (needResize) {
+                    renderer.setSize(width, height, false);
+                }
+                return needResize;
             }
 
             // request browser you want to animate something
