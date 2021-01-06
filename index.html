@@ -62,9 +62,15 @@
                 makeViewpoint(new THREE.Vector3(-4.5, 4.5, 7), cubes[0].cube),
             ];
 
-            console.log(viewpoints);
-
-            // makeInstance
+            // position cubes to help visualize orientation
+            makeCube(10, 10, 10);
+            makeCube(-10, 10, 10);
+            makeCube(10, -10, 10);
+            makeCube(-10, -10, 10);
+            makeCube(10, 10, -10);
+            makeCube(-10, 10, -10);
+            makeCube(10, -10, -10);
+            makeCube(-10, -10, -10);
 
             {
                 const color = 0xFFFFFF;
@@ -94,13 +100,27 @@
                 return { cube, elem };
             }
 
+            // create an instance of the cube
+            function makeCube(x, y, z) {
+                const material = new THREE.MeshPhongMaterial(0xbbbbbb);
+                const cube = new THREE.Mesh(geometry, material);
+                scene.add(cube);
+                cube.position.x = x;
+                cube.position.y = y;
+                cube.position.z = z;
+                return { cube };
+            }
+
             function makeViewpoint(position, lookatObject) {
-                console.log(position);
-                console.log(lookatObject);
-                // const material = new THREE.MeshPhongMaterial({ color });
+
+                // create empty object we can orientate to
                 const viewpoint = new THREE.Object3D();
                 scene.add(viewpoint);
                 viewpoint.position.set(position.x, position.y, position.z);
+                // var direction = new THREE.Vector3();
+                // direction.subVectors(position, lookatObject.position);
+                // direction.normalize();
+                viewpoint.up.set(0, 1, 0); // this should be the default anyway
                 viewpoint.lookAt(lookatObject.position);
 
                 return viewpoint;
@@ -134,8 +154,8 @@
                 // rotate our cubes a bit
                 for (let i = 0; i < cubes.length; i++) {
                     let { cube, elem } = cubes[i];
-                    cube.rotation.x = time;
-                    cube.rotation.y = time;
+                    // cube.rotation.x = time;
+                    // cube.rotation.y = time;
 
                     const tempV = new THREE.Vector3();
 
@@ -164,13 +184,21 @@
                 else {
                     // move the camera with some code
                     let cameraPosition = camera.position
-                    let rot = camera.rotation;
+                    let cameraRotation = camera.quaternion;
+                    // let cameraPosition = cubes[2].cube.position;
+                    // let cameraRotation = cubes[2].cube.quaternion;
+                    // cameraRotation.normalize();
+
                     // cameraRotation = new THREE.Vector3(camera.rotation._x, camera.rotation._y, camera.rotation._z)
                     // cameraPosition = new THREE.Vector3().addVectors(cameraPosition, new THREE.Vector3(0.1, 0, 0));                    
                     // cameraPosition.lerp(aquaPosition, 0.01);
                     cameraPosition.lerp(viewpoints[0].position, 0.1);
-                    camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z)
+                    cameraRotation.slerp(viewpoints[0].quaternion, 0.01);
+                    //  mesh.quaternion.slerp( endQuaternion, 0.01 );
+                    // camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z);
                     camera.updateProjectionMatrix()
+
+                    cubes[2].cube.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z);
                 }
                 // console.log(camera.position);
                 // draw and call loop again
