@@ -58,6 +58,14 @@
                 makeInstance(geometry, 0xaa8844, 2, "gold"),
             ];
 
+            const viewpoints = [
+                makeViewpoint(new THREE.Vector3(-4.5, 4.5, 7), cubes[0].cube),
+            ];
+
+            console.log(viewpoints);
+
+            // makeInstance
+
             {
                 const color = 0xFFFFFF;
                 const intensity = 1;
@@ -84,6 +92,19 @@
                 labelContainerElem.appendChild(elem);
 
                 return { cube, elem };
+            }
+
+            function makeViewpoint(position, lookatObject) {
+                console.log(position);
+                console.log(lookatObject);
+                // const material = new THREE.MeshPhongMaterial({ color });
+                const viewpoint = new THREE.Object3D();
+                scene.add(viewpoint);
+                viewpoint.position.set(position.x, position.y, position.z);
+                viewpoint.lookAt(lookatObject.position);
+
+                return viewpoint;
+
             }
 
             function areaSelected(name) {
@@ -143,13 +164,15 @@
                 else {
                     // move the camera with some code
                     let cameraPosition = camera.position
+                    let rot = camera.rotation;
                     // cameraRotation = new THREE.Vector3(camera.rotation._x, camera.rotation._y, camera.rotation._z)
-                    // cameraPosition = new THREE.Vector3().addVectors(cameraPosition, new THREE.Vector3(0.1, 0, 0));
-                    cameraPosition.lerp(aquaPosition, 0.01);
+                    // cameraPosition = new THREE.Vector3().addVectors(cameraPosition, new THREE.Vector3(0.1, 0, 0));                    
+                    // cameraPosition.lerp(aquaPosition, 0.01);
+                    cameraPosition.lerp(viewpoints[0].position, 0.1);
                     camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z)
                     camera.updateProjectionMatrix()
                 }
-
+                // console.log(camera.position);
                 // draw and call loop again
                 renderer.render(scene, camera);
                 requestAnimationFrame(render);
