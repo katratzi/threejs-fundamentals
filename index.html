@@ -88,9 +88,10 @@
             function areaSelected(name) {
                 // toggle controls
                 controlsEnabled = !controlsEnabled;
+                controls.enabled = controlsEnabled;
 
+                // debug
                 console.log(`I am clicked ${name} ${controlsEnabled}`);
-
             }
 
             // our render loop
@@ -132,8 +133,20 @@
                     elem.style.transform = `translate(-50%, -50%) translate(${x}px,${y}px)`;
                 }
 
-                // input update - needed for damping
-                controls.update();
+
+                // if we're using controls update them
+                if (controlsEnabled) {
+                    // input update - needed for damping
+                    controls.update();
+                }
+                else {
+                    // move the camera with some code
+                    let cameraPosition = camera.position
+                    // cameraRotation = new THREE.Vector3(camera.rotation._x, camera.rotation._y, camera.rotation._z)
+                    cameraPosition = new THREE.Vector3().addVectors(cameraPosition, new THREE.Vector3(0.1, 0, 0));
+                    camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z)
+                    camera.updateProjectionMatrix()
+                }
 
                 // draw and call loop again
                 renderer.render(scene, camera);
