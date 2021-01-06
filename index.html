@@ -34,6 +34,7 @@
             camera.position.z = 10;
 
             var controlsEnabled = true;
+            var aquaPosition = new THREE.Vector3(0, 2, 20);
 
             // and create a new scene
             const scene = new THREE.Scene();
@@ -143,7 +144,8 @@
                     // move the camera with some code
                     let cameraPosition = camera.position
                     // cameraRotation = new THREE.Vector3(camera.rotation._x, camera.rotation._y, camera.rotation._z)
-                    cameraPosition = new THREE.Vector3().addVectors(cameraPosition, new THREE.Vector3(0.1, 0, 0));
+                    // cameraPosition = new THREE.Vector3().addVectors(cameraPosition, new THREE.Vector3(0.1, 0, 0));
+                    cameraPosition.lerp(aquaPosition, 0.01);
                     camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z)
                     camera.updateProjectionMatrix()
                 }

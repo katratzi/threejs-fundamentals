@@ -7,6 +7,8 @@ click on label to zoom in to a view
  - * disable orbital controls
  - lerp to a position
  - - move camera with code
+ - - lerp to a position
+ - - store some positions as json or something
  - in this position detect a 'back out'
  - lerp back to where we were
  - enable controls again
