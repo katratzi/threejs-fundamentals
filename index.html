@@ -10,7 +10,10 @@
 <body>
 
     <body>
-        <canvas id="c"></canvas>
+        <div id="container">
+            <canvas id="c"></canvas>
+            <div id="labels"></div>
+        </div>
     </body>
 
     <script type="module">
@@ -33,7 +36,6 @@
             // and create a new scene
             const scene = new THREE.Scene();
             const geometry = new THREE.BoxGeometry(1, 1, 1);
-            const material = new THREE.MeshPhongMaterial({ color: 0x44aa88 });
 
             const light = new THREE.AmbientLight(0x404040); // soft white light
             scene.add(light);
@@ -48,9 +50,9 @@
             renderer.render(scene, camera);
 
             const cubes = [
-                makeInstance(geometry, 0x44aa88, 0),
-                makeInstance(geometry, 0x8844aa, -2),
-                makeInstance(geometry, 0xaa8844, 2),
+                makeInstance(geometry, 0x44aa88, 0, "aqua"),
+                makeInstance(geometry, 0x8844aa, -2, "purple"),
+                makeInstance(geometry, 0xaa8844, 2, "gold"),
             ];
 
             {
@@ -62,14 +64,19 @@
             }
 
             // create an instance of the cube
-            function makeInstance(geometry, color, x) {
+            function makeInstance(geometry, color, x, name) {
                 const material = new THREE.MeshPhongMaterial({ color });
                 const cube = new THREE.Mesh(geometry, material);
                 scene.add(cube);
-
                 cube.position.x = x;
 
-                return cube;
+                // html label
+                const elem = document.createElement('div');
+                elem.textContent = name;
+                const labelContainerElem = document.querySelector('#labels');
+                labelContainerElem.appendChild(elem);
+
+                return { cube, elem };
             }
 
             // our render loop
@@ -84,13 +91,34 @@
                     camera.updateProjectionMatrix();
                 }
 
+                // fixes stutter
+                camera.updateMatrixWorld();
+
                 // rotate our cubes a bit
                 for (let i = 0; i < cubes.length; i++) {
-                    cubes[i].rotation.x = time;
-                    cubes[i].rotation.y = time;
+                    let { cube, elem } = cubes[i];
+                    cube.rotation.x = time;
+                    cube.rotation.y = time;
+
+                    const tempV = new THREE.Vector3();
+
+                    // get the position of the center of the cube
+                    cube.getWorldPosition(tempV);
+
+                    // get the normalized screen coordinate of that position
+                    // x and y will be in the -1 to +1 range with x = -1 being
+                    // on the left and y = -1 being on the bottom
+                    tempV.project(camera);
+
+                    // convert the normalized position to CSS coordinates
+                    const x = (tempV.x * .5 + .5) * canvas.clientWidth;
+                    const y = (tempV.y * -.5 + .5) * canvas.clientHeight;
+
+                    // move the elem to that position
+                    elem.style.transform = `translate(-50%, -50%) translate(${x}px,${y}px)`;
                 }
 
-                // input
+                // input update - needed for damping
                 controls.update();
 
                 // draw and call loop again
